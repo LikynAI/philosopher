@@ -6,7 +6,7 @@
 /*   By: alex <alex@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 11:33:35 by alex              #+#    #+#             */
-/*   Updated: 2022/07/05 11:56:29 by alex             ###   ########.fr       */
+/*   Updated: 2022/07/05 12:11:39 by alex             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	get_time(void)
 	return (milliseconds - starttime);
 }
 
-static int	stop_simulation(t_input *i, int died, pthread_mutex_t	*mutexes)
+static void	stop_simulation(t_input *i, int died, pthread_mutex_t	*mutexes)
 {
 	i->n_of_philo = 0;
 	pthread_mutex_lock(&(mutexes[0]));
@@ -34,8 +34,8 @@ static int	stop_simulation(t_input *i, int died, pthread_mutex_t	*mutexes)
 	else
 		printf("%d Vse naelis\'\n", get_time());
 	pthread_mutex_unlock(&(mutexes[0]));
+	clear_data(mutexes, i->n_of_philo);
 	usleep(i->time_to_eat + i->time_to_sleep);
-	exit(0);
 }
 
 static void	simulation(t_input *i, t_philo *p, pthread_mutex_t	*mutexes)
@@ -50,17 +50,21 @@ static void	simulation(t_input *i, t_philo *p, pthread_mutex_t	*mutexes)
 		while (++j < i->n_of_philo)
 		{
 			if (is_dead(p[j]))
+			{
 				stop_simulation(i, j + 1, mutexes);
+				return (free(p));
+			}
 			if (i->number_of_times_each_t_philosopher_must_eat < 0
 				|| p[j].eat_times
 				< i->number_of_times_each_t_philosopher_must_eat)
 				b = 0;
 		}
 		if (b)
+		{
 			stop_simulation(i, 0, mutexes);
+			return (free(p));
+		}
 	}
-	free(p);
-	clear_data(mutexes, i->n_of_philo);
 }
 
 static void	start_simulation(t_input *i)
@@ -73,7 +77,7 @@ static void	start_simulation(t_input *i)
 	threads = malloc(sizeof(pthread_t) * i->n_of_philo);
 	mutexes = malloc(sizeof(pthread_mutex_t) * (i->n_of_philo + 1));
 	p = malloc(sizeof(t_philo) * i->n_of_philo);
-	philo_init(&p, i, mutexes);
+	philo_init(p, i, mutexes);
 	j = 0;
 	while (j < i->n_of_philo)
 	{

@@ -6,7 +6,7 @@
 /*   By: alex <alex@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 11:33:30 by alex              #+#    #+#             */
-/*   Updated: 2022/07/05 11:56:27 by alex             ###   ########.fr       */
+/*   Updated: 2022/07/05 11:58:48 by alex             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ typedef struct s_t_philo
 }	t_philo;
 
 void	*manager(void *p);
-void	philo_init(t_philo **p, t_input *i, pthread_mutex_t	*mutexes);
+void	philo_init(t_philo *p, t_input *i, pthread_mutex_t	*mutexes);
 int		get_time(void);
 void	print_data(char *text, int p_name, t_philo *p);
 void	p_sleep(t_philo *p);

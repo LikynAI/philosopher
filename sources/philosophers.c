@@ -12,7 +12,7 @@
 
 #include "philosophers.h"
 
-void	philo_init(t_philo **p, t_input *i, pthread_mutex_t	*mutexes)
+void	philo_init(t_philo *p, t_input *i, pthread_mutex_t	*mutexes)
 {
 	int	j;
 
@@ -20,16 +20,16 @@ void	philo_init(t_philo **p, t_input *i, pthread_mutex_t	*mutexes)
 	j = -1;
 	while (++j < i->n_of_philo)
 	{
-		(*p)[j].print_mutex = &(mutexes[0]);
-		(*p)[j].eat_times = 0;
+		(p)[j].print_mutex = &(mutexes[0]);
+		(p)[j].eat_times = 0;
 		pthread_mutex_init(&(mutexes[j + 1]), NULL);
-		(*p)[j].rfork = &(mutexes[j + 1]);
+		(p)[j].rfork = &(mutexes[j + 1]);
 		if (j < i->n_of_philo - 1)
-			(*p)[j].lfork = &(mutexes[j + 2]);
+			(p)[j].lfork = &(mutexes[j + 2]);
 		else
-			(*p)[j].lfork = &(mutexes[1]);
-		(*p)[j].inp = i;
-		(*p)[j].id = j + 1;
+			(p)[j].lfork = &(mutexes[1]);
+		(p)[j].inp = i;
+		(p)[j].id = j + 1;
 	}
 }
 
