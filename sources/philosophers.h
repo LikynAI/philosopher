@@ -6,7 +6,7 @@
 /*   By: alex <alex@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 11:33:30 by alex              #+#    #+#             */
-/*   Updated: 2022/07/01 17:08:07 by alex             ###   ########.fr       */
+/*   Updated: 2022/07/05 11:52:10 by alex             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,9 @@
 # include "pthread.h"
 # include <stdio.h>
 
-pthread_mutex_t	*g_mutexes;
-
 typedef struct s_t_input
 {
-	int	number_of_t_philosophers;
+	int	n_of_philo;
 	int	time_to_die;
 	int	time_to_eat;
 	int	time_to_sleep;
@@ -39,10 +37,11 @@ typedef struct s_t_philo
 	int				id;
 	t_input			*inp;
 	int				eat_times;
+	pthread_mutex_t	*print_mutex;
 }	t_philo;
 
 void	*manager(void *p);
-void	philo_init(t_philo **p, t_input *i);
+void	philo_init(t_philo **p, t_input *i, pthread_mutex_t	*mutexes);
 int		get_time(void);
 void	print_data(char *text, int p_name, t_philo *p);
 void	p_sleep(t_philo *p);
@@ -50,5 +49,6 @@ void	eat(t_philo *p);
 int		thinking(t_philo *p);
 int		is_dead(t_philo p);
 int		ft_atoi(const char *str);
+void	clear_data(pthread_mutex_t	*mutexes, int n);
 
 #endif

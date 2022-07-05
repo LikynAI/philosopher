@@ -6,7 +6,7 @@
 /*   By: alex <alex@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 11:33:35 by alex              #+#    #+#             */
-/*   Updated: 2022/07/01 17:03:36 by alex             ###   ########.fr       */
+/*   Updated: 2022/07/05 11:47:31 by alex             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,20 +25,20 @@ int	get_time(void)
 	return (milliseconds - starttime);
 }
 
-static int	stop_simulation(t_input *i, int died)
+static int	stop_simulation(t_input *i, int died, pthread_mutex_t	*mutexes)
 {
-	i->number_of_t_philosophers = 0;
-	pthread_mutex_lock(&(g_mutexes[0]));
+	i->n_of_philo = 0;
+	pthread_mutex_lock(&(mutexes[0]));
 	if (died)
 		printf("%d %d died\n", get_time(), died);
 	else
 		printf("%d Vse naelis\'\n", get_time());
-	pthread_mutex_unlock(&(g_mutexes[0]));
+	pthread_mutex_unlock(&(mutexes[0]));
 	usleep(i->time_to_eat + i->time_to_sleep);
 	exit(0);
 }
 
-static void	simulation(t_input *i, t_philo *p)
+static void	simulation(t_input *i, t_philo *p, pthread_mutex_t	*mutexes)
 {
 	int	b;
 	int	j;
@@ -47,47 +47,49 @@ static void	simulation(t_input *i, t_philo *p)
 	{	
 		b = 1;
 		j = -1;
-		while (++j < i->number_of_t_philosophers)
+		while (++j < i->n_of_philo)
 		{
 			if (is_dead(p[j]))
-				stop_simulation(i, j + 1);
+				stop_simulation(i, j + 1, mutexes);
 			if (i->number_of_times_each_t_philosopher_must_eat < 0
 				|| p[j].eat_times
 				< i->number_of_times_each_t_philosopher_must_eat)
 				b = 0;
 		}
 		if (b)
-			stop_simulation(i, 0);
+			stop_simulation(i, 0, mutexes);
 	}
+	free(p);
+	clear_data(mutexes, i->n_of_philo);
 }
 
-int	start_simulation(t_input *i)
+static void	start_simulation(t_input *i)
 {
-	int			j;	
-	t_philo		*p;
-	pthread_t	*threads;
+	int				j;	
+	t_philo			*p;
+	pthread_t		*threads;
+	pthread_mutex_t	*mutexes;
 
-	threads = malloc(sizeof(pthread_t) * i->number_of_t_philosophers);
-	g_mutexes = malloc(sizeof(pthread_mutex_t)
-			* (i->number_of_t_philosophers + 1));
-	p = malloc(sizeof(t_philo) * i->number_of_t_philosophers);
-	philo_init(&p, i);
+	threads = malloc(sizeof(pthread_t) * i->n_of_philo);
+	mutexes = malloc(sizeof(pthread_mutex_t) * (i->n_of_philo + 1));
+	p = malloc(sizeof(t_philo) * i->n_of_philo);
+	philo_init(&p, i, mutexes);
 	j = 0;
-	while (j < i->number_of_t_philosophers)
+	while (j < i->n_of_philo)
 	{
 		usleep(10);
 		pthread_create(&threads[j], NULL, &manager, &(p[j]));
 		j += 2;
 	}
 	j = 1;
-	while (j < i->number_of_t_philosophers)
+	while (j < i->n_of_philo)
 	{
 		usleep(10);
 		pthread_create(&threads[j], NULL, &manager, &(p[j]));
 		j += 2;
 	}
-	simulation(i, p);
-	return (0);
+	simulation(i, p, mutexes);
+	free(threads);
 }
 
 int	main(int argc, char *argv[])
@@ -96,7 +98,7 @@ int	main(int argc, char *argv[])
 
 	if (argc == 6 || argc == 5)
 	{
-		i.number_of_t_philosophers = ft_atoi(argv[1]);
+		i.n_of_philo = ft_atoi(argv[1]);
 		i.time_to_die = ft_atoi(argv[2]);
 		i.time_to_eat = ft_atoi(argv[3]);
 		i.time_to_sleep = ft_atoi(argv[4]);

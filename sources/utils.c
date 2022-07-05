@@ -6,9 +6,21 @@
 /*   By: alex <alex@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/01 17:00:51 by alex              #+#    #+#             */
-/*   Updated: 2022/07/01 17:37:43 by alex             ###   ########.fr       */
+/*   Updated: 2022/07/05 11:13:19 by alex             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "philosophers.h"
+
+void	clear_data(pthread_mutex_t	*mutexes, int n)
+{
+	int	i;
+
+	i = -1;
+	while (++i < n + 1)
+		pthread_mutex_destroy(&(mutexes[i]));
+	free(mutexes);
+}
 
 static int	over_int_handler(int isNeg)
 {
